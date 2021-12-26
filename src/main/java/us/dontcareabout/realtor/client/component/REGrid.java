@@ -1,11 +1,18 @@
 package us.dontcareabout.realtor.client.component;
 
+import static com.google.gwt.user.client.ui.HasHorizontalAlignment.ALIGN_CENTER;
+import static com.google.gwt.user.client.ui.HasHorizontalAlignment.ALIGN_RIGHT;
+
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 
+import com.google.gwt.cell.client.AbstractCell;
 import com.google.gwt.core.client.GWT;
 import com.google.gwt.editor.client.Editor.Path;
+import com.google.gwt.i18n.client.NumberFormat;
+import com.google.gwt.safehtml.shared.SafeHtmlBuilder;
+import com.sencha.gxt.cell.core.client.NumberCell;
 import com.sencha.gxt.core.client.ValueProvider;
 import com.sencha.gxt.data.shared.PropertyAccess;
 import com.sencha.gxt.data.shared.TreeStore;
@@ -15,11 +22,13 @@ import com.sencha.gxt.widget.core.client.grid.ColumnModel;
 import us.dontcareabout.gxt.client.util.ColumnConfigBuilder;
 import us.dontcareabout.realtor.client.component.REGrid.Entity;
 import us.dontcareabout.realtor.client.component.gf.TreeGrid2;
+import us.dontcareabout.realtor.client.util.HtmlTemplate;
 import us.dontcareabout.realtor.client.vo.IRealEstate;
 import us.dontcareabout.realtor.client.vo.RealEstate;
 
 public class REGrid extends TreeGrid2<Entity> {
 	private static Properties properties = GWT.create(Properties.class);
+	private static NumberCell<Double> numberCell = new NumberCell<>(NumberFormat.getFormat("#,##0.##"));
 
 	public REGrid() {
 		grid.getTreeView().setForceFit(true);
@@ -46,6 +55,7 @@ public class REGrid extends TreeGrid2<Entity> {
 	@Override
 	protected ColumnConfig<Entity, ?> genTreeColumn() {
 		return new ColumnConfigBuilder<Entity, String>(properties.name())
+			.setHorizontalHeaderAlignment(ALIGN_CENTER)
 			.setHeader("地籍資訊").setWidth(150).build();
 	}
 
@@ -59,23 +69,34 @@ public class REGrid extends TreeGrid2<Entity> {
 		List<ColumnConfig<Entity, ?>> list = new ArrayList<>();
 		list.add(treeColumn);
 		list.add(
-			new ColumnConfigBuilder<Entity, Double>(properties.squarePing())
+			new ColumnConfigBuilder<Entity, Boolean>(properties.offline())
+				.setHeader("下架").setHorizontalHeaderAlignment(ALIGN_CENTER)
+				.setWidth(50).setFixed(true).setCellPedding(false)
+				.setCell(new AbstractCell<Boolean>() {
+					@Override
+					public void render(Context context, Boolean value, SafeHtmlBuilder sb) {
+						sb.append(HtmlTemplate.tplt.reGridOffline(value));
+					}
+				}).build()
+		);
+		list.add(
+			genDoubleConfigBuilder(properties.squarePing())
 				.setHeader("坪數").build()
 		);
 		list.add(
-			new ColumnConfigBuilder<Entity, Double>(properties.rightPing())
+			genDoubleConfigBuilder(properties.rightPing())
 				.setHeader("權利坪數").build()
 		);
 		list.add(
-			new ColumnConfigBuilder<Entity, Double>(properties.announcePrice())
+			genDoubleConfigBuilder(properties.announcePrice())
 				.setHeader("公告現值").build()
 		);
 		list.add(
-			new ColumnConfigBuilder<Entity, Double>(properties.sellPrice())
+			genDoubleConfigBuilder(properties.sellPrice())
 				.setHeader("售價").build()
 		);
 		list.add(
-			new ColumnConfigBuilder<Entity, Double>(properties.totalPrice())
+			genDoubleConfigBuilder(properties.totalPrice())
 				.setHeader("總價").build()
 		);
 		return new ColumnModel<>(list);
@@ -105,22 +126,30 @@ public class REGrid extends TreeGrid2<Entity> {
 		return result;
 	}
 
-	interface Properties extends PropertyAccess<Entity> {
-		ValueProvider<Entity, String> name();
-
-		@Path("re.squarePing") ValueProvider<Entity, Double> squarePing();
-		@Path("re.announcePrice") ValueProvider<Entity, Double> announcePrice();
-		@Path("re.sellPrice") ValueProvider<Entity, Double> sellPrice();
-		@Path("re.rightPing") ValueProvider<Entity, Double> rightPing();
-		@Path("re.totalPrice") ValueProvider<Entity, Double> totalPrice();
-	}
-
 	private static Entity find(List<Entity> list, String name) {
 		for (Entity entity : list) {
 			if (name.equals(entity.getName())) { return entity; }
 		}
 
 		return null;
+	}
+
+	private static ColumnConfigBuilder<Entity, Double> genDoubleConfigBuilder(ValueProvider<Entity, Double> v) {
+		return new ColumnConfigBuilder<Entity, Double>(v)
+			.setCell(numberCell)
+			.setHorizontalHeaderAlignment(ALIGN_CENTER)
+			.setHorizontalAlignment(ALIGN_RIGHT);
+	}
+
+	interface Properties extends PropertyAccess<Entity> {
+		ValueProvider<Entity, String> name();
+
+		@Path("re.offline") ValueProvider<Entity, Boolean> offline();
+		@Path("re.squarePing") ValueProvider<Entity, Double> squarePing();
+		@Path("re.announcePrice") ValueProvider<Entity, Double> announcePrice();
+		@Path("re.sellPrice") ValueProvider<Entity, Double> sellPrice();
+		@Path("re.rightPing") ValueProvider<Entity, Double> rightPing();
+		@Path("re.totalPrice") ValueProvider<Entity, Double> totalPrice();
 	}
 
 	class Entity {
@@ -164,7 +193,7 @@ public class REGrid extends TreeGrid2<Entity> {
 		public String getId() { return null; }
 
 		@Override
-		public Boolean isOffline() { return null; }
+		public Boolean isOffline() { return false; }
 
 		@Override
 		public String getArea() { return null; }
