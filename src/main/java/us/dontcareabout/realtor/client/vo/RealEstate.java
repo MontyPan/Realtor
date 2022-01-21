@@ -14,6 +14,7 @@ public final class RealEstate extends Row implements IRealEstate {
 		if (Strings.isNullOrEmpty(entry.getSection())) { return Validator.DUMMY_FAIL; }
 		if (Strings.isNullOrEmpty(entry.getSerial())) { return Validator.DUMMY_FAIL; }
 		try {
+			entry.getOffline();
 			entry.getSquareM2();
 			entry.getAnnouncePrice();
 			entry.getTotalPrice();
@@ -31,7 +32,7 @@ public final class RealEstate extends Row implements IRealEstate {
 
 	@Override
 	public String getId() {
-		return getArea() + getBlock() + getSerial();
+		return getArea() + getBlock() + getSerial() + getOffline();
 	}
 
 	@Override
