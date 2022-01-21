@@ -1,10 +1,12 @@
 package us.dontcareabout.realtor.client.vo;
 
+import java.util.Date;
+
 public interface IRealEstate {
 
 	String getId();
 
-	Boolean isOffline();
+	Date getOffline();
 
 	String getArea();
 

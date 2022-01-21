@@ -1,5 +1,7 @@
 package us.dontcareabout.realtor.client.vo;
 
+import java.util.Date;
+
 import com.google.common.base.Strings;
 import com.google.gwt.i18n.client.NumberFormat;
 
@@ -31,9 +33,10 @@ public final class RealEstate extends Row implements IRealEstate {
 	public String getId() {
 		return getArea() + getBlock() + getSerial();
 	}
+
 	@Override
-	public Boolean isOffline() {
-		return booleanField("下架");
+	public Date getOffline() {
+		return dateField("下架");
 	}
 
 	/** 區 */

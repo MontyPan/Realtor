@@ -4,6 +4,7 @@ import static com.google.gwt.user.client.ui.HasHorizontalAlignment.ALIGN_CENTER;
 import static com.google.gwt.user.client.ui.HasHorizontalAlignment.ALIGN_RIGHT;
 
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.HashSet;
 import java.util.List;
 
@@ -69,13 +70,13 @@ public class REGrid extends TreeGrid2<Entity> {
 		List<ColumnConfig<Entity, ?>> list = new ArrayList<>();
 		list.add(treeColumn);
 		list.add(
-			new ColumnConfigBuilder<Entity, Boolean>(properties.offline())
+			new ColumnConfigBuilder<Entity, Date>(properties.offline())
 				.setHeader("下架").setHorizontalHeaderAlignment(ALIGN_CENTER)
 				.setWidth(50).setFixed(true).setCellPedding(false)
-				.setCell(new AbstractCell<Boolean>() {
+				.setCell(new AbstractCell<Date>() {
 					@Override
-					public void render(Context context, Boolean value, SafeHtmlBuilder sb) {
-						sb.append(HtmlTemplate.tplt.reGridOffline(value));
+					public void render(Context context, Date value, SafeHtmlBuilder sb) {
+						sb.append(HtmlTemplate.tplt.reGridOffline(value != null));
 					}
 				}).build()
 		);
@@ -144,7 +145,7 @@ public class REGrid extends TreeGrid2<Entity> {
 	interface Properties extends PropertyAccess<Entity> {
 		ValueProvider<Entity, String> name();
 
-		@Path("re.offline") ValueProvider<Entity, Boolean> offline();
+		@Path("re.offline") ValueProvider<Entity, Date> offline();
 		@Path("re.squarePing") ValueProvider<Entity, Double> squarePing();
 		@Path("re.announcePrice") ValueProvider<Entity, Double> announcePrice();
 		@Path("re.sellPrice") ValueProvider<Entity, Double> sellPrice();
@@ -193,7 +194,7 @@ public class REGrid extends TreeGrid2<Entity> {
 		public String getId() { return null; }
 
 		@Override
-		public Boolean isOffline() { return false; }
+		public Date getOffline() { return null; }
 
 		@Override
 		public String getArea() { return null; }
